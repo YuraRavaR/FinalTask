@@ -1,4 +1,5 @@
 import java.io.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +22,8 @@ public class Program {
         try {
             FileReader reader = new FileReader(filePath);
             BufferedReader bufferedReader = new BufferedReader(reader);
-            String line = bufferedReader.readLine();
-            while (line != null) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
                 if (line.contains("TMobClient3")) {
                     String[] splitStr = line.split("\\s+");
                     String data = splitStr[0] + " " + splitStr[1];
@@ -43,7 +44,6 @@ public class Program {
                     LogLine logLine = new LogLine(data, id, type, status);
                     dataList.add(logLine);
                 }
-                line = bufferedReader.readLine();
             }
             bufferedReader.close();
         } catch (FileNotFoundException e) {
@@ -53,8 +53,8 @@ public class Program {
         }
         return dataList;
     }
-
 }
+
 
 
 
