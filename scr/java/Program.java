@@ -7,10 +7,17 @@ public class Program {
 
     public static void main(String[] args) {
         readUsingFileReader("data.log");
-//        List<LogLine> logLines = readUsingFileReader("data.log");
-//        for (LogLine log : logLines) {
-//            System.out.println(log);
-//        }
+        printFile("data.log");
+        try {
+            Map<LogLine, Integer> map = getLogLineCounts();
+            checkData(map);
+        } catch (AssertionError e) {
+            System.out.println("Error checking log data: " + e.getMessage());
+        }
+
+    }
+
+    private static Map<LogLine, Integer> getLogLineCounts() {
         Map<LogLine, Integer> map = new HashMap<>();
         for (LogLine data : dataList) {
             if (map.containsKey(data)) {
@@ -20,13 +27,14 @@ public class Program {
                 map.put(data, 1);
             }
         }
+        return map;
+    }
 
-        try {
-            checkData(map);
-        } catch (AssertionError e) {
-            System.out.println("Error message: " + e.getMessage());
+    private static void printFile(String filepath) {
+        List<LogLine> logLines = readUsingFileReader(filepath);
+        for (LogLine log : logLines) {
+            System.out.println(log);
         }
-
     }
 
     private static List<LogLine> readUsingFileReader(String filePath) {
