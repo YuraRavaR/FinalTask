@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.*;
 
 public class Program {
-    static List<LogLine> dataList = new ArrayList<>();
+    private static final List<LogLine> dataList = new ArrayList<>();
 
     public static void main(String[] args) {
         readUsingFileReader("data.log");
@@ -14,7 +14,6 @@ public class Program {
         } catch (AssertionError e) {
             System.out.println("Error checking log data: " + e.getMessage());
         }
-
     }
 
     private static Map<LogLine, Integer> getLogLineCounts() {
@@ -38,14 +37,7 @@ public class Program {
     }
 
     private static List<LogLine> readUsingFileReader(String filePath) {
-        try {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                System.out.println("File not found: " + filePath);
-                return null;
-            }
-            FileReader reader = new FileReader(filePath);
-            BufferedReader bufferedReader = new BufferedReader(reader);
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 if (line.contains("TMobClient3")) {
@@ -68,8 +60,9 @@ public class Program {
                     dataList.add(logLine);
                 }
             }
-            bufferedReader.close();
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found: " + filePath);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return dataList;
@@ -81,7 +74,6 @@ public class Program {
         }
     }
 }
-
 
 
 
