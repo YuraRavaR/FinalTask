@@ -1,27 +1,43 @@
 import java.io.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Program {
-    static List<LogLine> dataList = new ArrayList<>();
+    private static final List<LogLine> dataList = new ArrayList<>();
 
     public static void main(String[] args) {
-        List<LogLine> logLines = readUsingFileReader("data.log");
+        readUsingFileReader("data.log");
+        printFile("data.log");
+        try {
+            Map<LogLine, Integer> map = getLogLineCounts();
+            checkData(map);
+        } catch (AssertionError e) {
+            System.out.println("Error checking log data: " + e.getMessage());
+        }
+    }
+
+    private static Map<LogLine, Integer> getLogLineCounts() {
+        Map<LogLine, Integer> map = new HashMap<>();
+        for (LogLine data : dataList) {
+            if (map.containsKey(data)) {
+                int count = map.get(data);
+                map.put(data, count + 1);
+            } else {
+                map.put(data, 1);
+            }
+        }
+        return map;
+    }
+
+    private static void printFile(String filepath) {
+        List<LogLine> logLines = readUsingFileReader(filepath);
         for (LogLine log : logLines) {
             System.out.println(log);
         }
     }
 
     private static List<LogLine> readUsingFileReader(String filePath) {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            System.out.println("File not found: " + filePath);
-            return null;
-        }
-        try {
-            FileReader reader = new FileReader(filePath);
-            BufferedReader bufferedReader = new BufferedReader(reader);
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 if (line.contains("TMobClient3")) {
@@ -32,7 +48,6 @@ public class Program {
                     String status = "";
                     if (line.contains("Send:")) {
                         type = "Send";
-                        status = "";
                         String[] idArr = line.split("\"id\":")[1].split(",");
                         id = idArr[0];
                     } else if (line.contains("Http Code: 200")) {
@@ -45,16 +60,20 @@ public class Program {
                     dataList.add(logLine);
                 }
             }
-            bufferedReader.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("File not found: " + filePath);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return dataList;
     }
-}
 
+    public static void checkData(Map<LogLine, Integer> data) {
+        for (Map.Entry<LogLine, Integer> entry : data.entrySet()) {
+            if (entry.getValue() == 2) throw new AssertionError(entry.getKey() + "Repeated value!!");
+        }
+    }
+}
 
 
 
